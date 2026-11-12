@@ -84,11 +84,55 @@ func parseVersion(v string) [3]int {
 	return out
 }
 
+// ManagedInstall reports whether the running executable looks like it was
+// installed by a system package manager (dpkg, rpm, pacman) or runs from a
+// read-only location such as /usr/bin. Self-updating from inside the app
+// would fight the package manager, so callers should redirect the user to
+// apt/dnf/pacman (or the AppImage download page) instead of Install().
+func ManagedInstall() bool {
+	exe, err := os.Executable()
+	if err != nil {
+		return false
+	}
+	if exe, err = filepath.EvalSymlinks(exe); err != nil {
+		return false
+	}
+	// Standard system prefix: /usr/bin, /usr/local/bin, /opt, /app (Flatpak).
+	for _, prefix := range []string{"/usr/bin/", "/usr/local/bin/", "/opt/", "/app/"} {
+		if strings.HasPrefix(exe, prefix) {
+			return true
+		}
+	}
+	// dpkg / rpm database ownership check (cheap, best-effort).
+	for _, probe := range [][]string{
+		{"dpkg", "-S", exe},
+		{"rpm", "-qf", exe},
+		{"pacman", "-Qo", exe},
+	} {
+		if _, lookErr := exec.LookPath(probe[0]); lookErr != nil {
+			continue
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		cmd := exec.CommandContext(ctx, probe[0], probe[1:]...)
+		hideWindow(cmd)
+		if out, runErr := cmd.CombinedOutput(); runErr == nil && len(out) > 0 {
+			cancel()
+			return true
+		}
+		cancel()
+	}
+	return false
+}
+
 // Install downloads the platform's setup script and runs it in the directory
 // RefConnect is installed in, replacing the current version with the latest
 // release. It returns the path to relaunch (the .app bundle on macOS, the
 // executable elsewhere). The script's output is passed to logf.
+// It refuses to run on ManagedInstall() systems — use the package manager.
 func Install(ctx context.Context, logf func(string, ...any)) (string, error) {
+	if ManagedInstall() {
+		return "", fmt.Errorf("installed by a system package manager — update with apt/dnf/pacman or download a new AppImage instead")
+	}
 	exe, err := os.Executable()
 	if err != nil {
 		return "", err
