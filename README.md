@@ -40,7 +40,7 @@ sudo dnf install ./refconnect*.rpm      # Fedora/RHEL (x86_64/aarch64)
 chmod +x refconnect*.AppImage && ./refconnect*.AppImage
 ```
 
-Portable tarball fallback (`setup.sh` above) still works. See [docs/PACKAGING.md](docs/PACKAGING.md) for details.
+Linux builds need glibc 2.38+ (Debian 13+, Ubuntu 24.04+, Fedora 39+). Portable tarball fallback (`setup.sh` above) still works. See [docs/PACKAGING.md](docs/PACKAGING.md) for details.
 
 Check out the [Wiki](https://github.com/S7R4nG3/refconnect/wiki) for more information!
 

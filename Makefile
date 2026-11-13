@@ -73,14 +73,14 @@ GOBIN   ?= $(shell go env GOPATH)/bin
 NFPM    ?= $(GOBIN)/nfpm
 deb: build
 	@chmod +x packaging/scripts/*.sh
-	@VERSION=$(VERSION) ARCH=$(GOARCH) $(NFPM) package --packager deb --config packaging/nfpm.yaml --target .
+	@GLIBC_MIN=$$(sh packaging/glibc-min.sh $(BINARY)) VERSION=$(VERSION) ARCH=$(GOARCH) $(NFPM) package --packager deb --config packaging/nfpm.yaml --target .
 
 rpm: build
 	@chmod +x packaging/scripts/*.sh
-	@VERSION=$(VERSION) ARCH=$(GOARCH) $(NFPM) package --packager rpm --config packaging/nfpm.yaml --target .
+	@GLIBC_MIN=$$(sh packaging/glibc-min.sh $(BINARY)) VERSION=$(VERSION) ARCH=$(GOARCH) $(NFPM) package --packager rpm --config packaging/nfpm.yaml --target .
 
 appimage:
-	@bash packaging/build-appimage.sh .
+	@VERSION=$(VERSION) bash packaging/build-appimage.sh .
 
 clean:
 	@rm -f $(BINARY) $(EXE)

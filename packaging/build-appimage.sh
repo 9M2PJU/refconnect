@@ -1,13 +1,16 @@
 #!/bin/sh
 # Build a RefConnect AppImage (x86_64 or aarch64, same arch as the host).
 # Requires: go, appimagetool, Xorg/Wayland dev libs (see Makefile linux-packages).
-# Usage: ./packaging/build-appimage.sh [output-dir]
+# Usage: [VERSION=x.y.z] ./packaging/build-appimage.sh [output-dir]
+# VERSION defaults to version.json (CI passes the release tag so every
+# Linux artifact carries the same version).
 # Output: refconnect_<version>_<arch>.AppImage
 set -e
 cd "$(dirname "$0")/.."
 
 OUTDIR="${1:-.}"
-VERSION="$(python3 -c 'import json;print(json.load(open("version.json"))["version"])' | sed 's/^v//')"
+VERSION="${VERSION:-$(python3 -c 'import json;print(json.load(open("version.json"))["version"])')}"
+VERSION="${VERSION#v}"
 ARCH="$(uname -m)"
 case "${ARCH}" in
   x86_64)  APPARCH="x86_64" ;;

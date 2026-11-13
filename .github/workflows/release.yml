@@ -36,6 +36,9 @@ jobs:
         run: |
           go install github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.48.0
           chmod +x packaging/scripts/*.sh
+          GLIBC_MIN="$(sh packaging/glibc-min.sh refconnect)"
+          export GLIBC_MIN
+          echo "glibc floor: ${GLIBC_MIN}"
           VERSION="${GITHUB_REF_NAME#v}" ARCH=amd64 $(go env GOPATH)/bin/nfpm package --packager deb --config packaging/nfpm.yaml --target .
           VERSION="${GITHUB_REF_NAME#v}" ARCH=amd64 $(go env GOPATH)/bin/nfpm package --packager rpm --config packaging/nfpm.yaml --target .
           ls -l refconnect*.deb refconnect*.rpm
@@ -50,7 +53,7 @@ jobs:
           echo "${APPIMAGETOOL_SHA256}  appimagetool" | sha256sum -c -
           chmod +x appimagetool
           ./appimagetool --appimage-extract >/dev/null
-          APPIMAGETOOL="$PWD/squashfs-root/AppRun" bash packaging/build-appimage.sh .
+          VERSION="${GITHUB_REF_NAME#v}" APPIMAGETOOL="$PWD/squashfs-root/AppRun" bash packaging/build-appimage.sh .
 
       - uses: actions/upload-artifact@v4
         with:
@@ -91,6 +94,9 @@ jobs:
         run: |
           go install github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.48.0
           chmod +x packaging/scripts/*.sh
+          GLIBC_MIN="$(sh packaging/glibc-min.sh refconnect)"
+          export GLIBC_MIN
+          echo "glibc floor: ${GLIBC_MIN}"
           VERSION="${GITHUB_REF_NAME#v}" ARCH=arm64 $(go env GOPATH)/bin/nfpm package --packager deb --config packaging/nfpm.yaml --target .
           VERSION="${GITHUB_REF_NAME#v}" ARCH=arm64 $(go env GOPATH)/bin/nfpm package --packager rpm --config packaging/nfpm.yaml --target .
           ls -l refconnect*.deb refconnect*.rpm
@@ -105,9 +111,7 @@ jobs:
           echo "${APPIMAGETOOL_SHA256}  appimagetool" | sha256sum -c -
           chmod +x appimagetool
           ./appimagetool --appimage-extract >/dev/null
-          APPIMAGETOOL="$PWD/squashfs-root/AppRun" bash packaging/build-appimage.sh .
-        env:
-          ARCH: aarch64
+          VERSION="${GITHUB_REF_NAME#v}" APPIMAGETOOL="$PWD/squashfs-root/AppRun" bash packaging/build-appimage.sh .
 
       - uses: actions/upload-artifact@v4
         with:

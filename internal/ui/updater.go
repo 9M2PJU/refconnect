@@ -35,7 +35,7 @@ func (a *App) checkForUpdate() {
 			"Download the new release from GitHub and install it:\n"+
 			"  Debian/Ubuntu: download refconnect*.deb, then sudo apt install ./refconnect*.deb\n"+
 			"  Fedora/RHEL: download refconnect*.rpm, then sudo dnf install ./refconnect*.rpm\n"+
-			"  Arch (AUR, once published): yay -Syu refconnect-bin (or -git)\n"+
+			"  Arch (AUR): update the refconnect-bin or refconnect-git package with your AUR helper.\n"+
 			"  AppImage: download the new file from GitHub Releases and make it executable.",
 			latest, a.version)
 		fyne.Do(func() {

@@ -1,7 +1,8 @@
 # nFPM config: builds .deb and .rpm from the same definition.
 # Usage:
-#   VERSION=0.14.0 ARCH=amd64 make deb
-#   VERSION=0.14.0 ARCH=arm64 make rpm
+#   VERSION=0.14.0 GOARCH=amd64 make deb
+#   VERSION=0.14.0 GOARCH=arm64 make rpm
+# Requires VERSION, ARCH and GLIBC_MIN (from packaging/glibc-min.sh) in the env.
 # CI: .github/workflows/release.yml installs nfpm and calls it directly.
 # nFPM docs: https://nfpm.goreleaser.com/configuration/
 name: refconnect
@@ -18,6 +19,7 @@ vendor: S7R4nG3
 homepage: https://github.com/S7R4nG3/refconnect
 license: MIT
 depends:
+  - libc6 (>= ${GLIBC_MIN})
   - libgl1
   - libx11-6
   - libxcursor1
@@ -47,6 +49,7 @@ overrides:
   # different names, e.g. Mesa-libGL1, so the .rpm targets Fedora/RHEL).
   rpm:
     depends:
+      - glibc >= ${GLIBC_MIN}
       - mesa-libGL
       - libX11
       - libXcursor
