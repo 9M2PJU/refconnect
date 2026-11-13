@@ -65,8 +65,8 @@ run: bundle
 	@open $(APP)
 
 # Linux system packages. VERSION defaults to version.json without the leading
-# "v"; ARCH defaults to the Go arch (amd64/arm64). Requires nFPM:
-#   go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
+# "v"; ARCH defaults to the Go arch (amd64/arm64). Requires nFPM v2.48.0:
+#   go install github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.48.0
 VERSION ?= $(shell python3 -c 'import json;print(json.load(open("version.json"))["version"].lstrip("v"))')
 GOARCH  ?= $(shell go env GOARCH)
 GOBIN   ?= $(shell go env GOPATH)/bin

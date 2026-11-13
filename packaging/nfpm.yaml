@@ -36,13 +36,15 @@ contents:
   - src: ./configs/refconnect.desktop
     dst: /usr/share/applications/refconnect.desktop
   - src: ./docs/antenna.png
-    dst: /usr/share/icons/hicolor/512x512/apps/refconnect.png
+    dst: /usr/share/icons/hicolor/32x32/apps/refconnect.png
   - src: ./LICENSE
     dst: /usr/share/doc/refconnect/copyright
 scripts:
   postinstall: ./packaging/scripts/postinstall.sh
   postremove: ./packaging/scripts/postremove.sh
 overrides:
+  # Dependency names below are Fedora/RHEL specific (openSUSE uses
+  # different names, e.g. Mesa-libGL1, so the .rpm targets Fedora/RHEL).
   rpm:
     depends:
       - mesa-libGL

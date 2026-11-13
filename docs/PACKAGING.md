@@ -16,16 +16,15 @@ make appimage   # -> refconnect_<version>_<arch>.AppImage (needs appimagetool)
 Install / verify:
 
 ```sh
-sudo dpkg -i refconnect*.deb        # Debian/Ubuntu
-sudo rpm -i refconnect*.rpm          # Fedora/RHEL (or dnf install)
-sudo dnf install ./refconnect*.rpm
+sudo apt install ./refconnect*.deb    # Debian/Ubuntu (resolves deps)
+sudo dnf install ./refconnect*.rpm    # Fedora/RHEL (rpm deps are Fedora/RHEL names; openSUSE not covered)
 chmod +x refconnect*.AppImage && ./refconnect*.AppImage
 dpkg -c refconnect*.deb
 rpm -qlp refconnect*.rpm
 ```
 
 Files installed: `/usr/bin/refconnect`, `/usr/share/applications/refconnect.desktop`,
-`/usr/share/icons/hicolor/512x512/apps/refconnect.png`.
+`/usr/share/icons/hicolor/32x32/apps/refconnect.png` (`docs/antenna.png` is 32×32).
 
 ## Releases
 
@@ -55,11 +54,14 @@ makepkg -g   # paste sha256sums_* into PKGBUILD
 makepkg --printsrcinfo > .SRCINFO && git commit -am "vX.Y.Z" && git push
 ```
 
-Install: `yay -S refconnect-git` or `yay -S refconnect-bin`.
+Install: `yay -S refconnect-git` or `yay -S refconnect-bin` (once published to the AUR).
 
 ## Self-updater behavior
 
-`internal/update.ManagedInstall()` detects `/usr/bin`, `/opt`, `dpkg -S`, `rpm -qf`,
-`pacman -Qo`. On managed installs `Install()` refuses and the UI (`internal/ui/updater.go`)
-tells the user to use `apt`/`dnf`/`pacman` or re-download the AppImage instead of
-overwriting a packaged binary.
+`internal/update.ManagedInstall()` detects the `APPIMAGE` env var, the
+`/usr/bin` and `/app` prefixes, and `dpkg -S` / `rpm -qf` / `pacman -Qo`
+ownership probes. `/usr/local/bin` and `/opt` are treated as manual
+`setup.sh` installs, so the in-app updater still works there. On managed
+installs `Install()` refuses and the UI (`internal/ui/updater.go`) tells the
+user to download the new `.deb`/`.rpm`/AppImage from GitHub Releases
+(there is no APT/DNF repository yet, so `apt`/`dnf upgrade` will not find it).

@@ -85,11 +85,19 @@ func parseVersion(v string) [3]int {
 }
 
 // ManagedInstall reports whether the running executable looks like it was
-// installed by a system package manager (dpkg, rpm, pacman) or runs from a
-// read-only location such as /usr/bin. Self-updating from inside the app
-// would fight the package manager, so callers should redirect the user to
-// apt/dnf/pacman (or the AppImage download page) instead of Install().
+// installed by a system package manager (dpkg, rpm, pacman), runs from an
+// AppImage, or runs from a read-only system location such as /usr/bin.
+// Self-updating from inside the app would fight the package manager, so
+// callers should redirect the user to a fresh download (or the AppImage
+// download page) instead of Install(). There is no APT/DNF repository yet,
+// so a .deb/.rpm installed from a file cannot be updated with apt/dnf
+// upgrade — the user must download the new package from GitHub Releases.
 func ManagedInstall() bool {
+	// Inside an AppImage the executable resolves to a read-only
+	// /tmp/.mount_XXXX path that no package database owns.
+	if os.Getenv("APPIMAGE") != "" {
+		return true
+	}
 	exe, err := os.Executable()
 	if err != nil {
 		return false
@@ -97,8 +105,11 @@ func ManagedInstall() bool {
 	if exe, err = filepath.EvalSymlinks(exe); err != nil {
 		return false
 	}
-	// Standard system prefix: /usr/bin, /usr/local/bin, /opt, /app (Flatpak).
-	for _, prefix := range []string{"/usr/bin/", "/usr/local/bin/", "/opt/", "/app/"} {
+	// Packaged install location: /usr/bin (deb/rpm/AUR) or /app (Flatpak).
+	// /usr/local/bin and /opt are conventional manual-install locations,
+	// not package-manager owned, so a setup.sh install there keeps the
+	// in-app updater.
+	for _, prefix := range []string{"/usr/bin/", "/app/"} {
 		if strings.HasPrefix(exe, prefix) {
 			return true
 		}
@@ -131,7 +142,7 @@ func ManagedInstall() bool {
 // It refuses to run on ManagedInstall() systems — use the package manager.
 func Install(ctx context.Context, logf func(string, ...any)) (string, error) {
 	if ManagedInstall() {
-		return "", fmt.Errorf("installed by a system package manager — update with apt/dnf/pacman or download a new AppImage instead")
+		return "", fmt.Errorf("installed by a system package or AppImage — download the new release from GitHub instead")
 	}
 	exe, err := os.Executable()
 	if err != nil {

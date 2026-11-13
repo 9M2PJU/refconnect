@@ -20,10 +20,10 @@ go build -ldflags="-s -w" -o refconnect .
 
 APPDIR="$(mktemp -d)/RefConnect.AppDir"
 mkdir -p "${APPDIR}/usr/bin" "${APPDIR}/usr/share/applications" \
-         "${APPDIR}/usr/share/icons/hicolor/512x512/apps"
+         "${APPDIR}/usr/share/icons/hicolor/32x32/apps"
 cp refconnect "${APPDIR}/usr/bin/refconnect"
 cp configs/refconnect.desktop "${APPDIR}/usr/share/applications/refconnect.desktop"
-cp docs/antenna.png "${APPDIR}/usr/share/icons/hicolor/512x512/apps/refconnect.png"
+cp docs/antenna.png "${APPDIR}/usr/share/icons/hicolor/32x32/apps/refconnect.png"
 cp docs/antenna.png "${APPDIR}/refconnect.png"
 cp configs/refconnect.desktop "${APPDIR}/refconnect.desktop"
 cat > "${APPDIR}/AppRun" <<'EOF'

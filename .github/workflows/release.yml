@@ -34,20 +34,23 @@ jobs:
 
       - name: Build .deb / .rpm (nFPM)
         run: |
-          go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
+          go install github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.48.0
           chmod +x packaging/scripts/*.sh
           VERSION="${GITHUB_REF_NAME#v}" ARCH=amd64 $(go env GOPATH)/bin/nfpm package --packager deb --config packaging/nfpm.yaml --target .
           VERSION="${GITHUB_REF_NAME#v}" ARCH=amd64 $(go env GOPATH)/bin/nfpm package --packager rpm --config packaging/nfpm.yaml --target .
           ls -l refconnect*.deb refconnect*.rpm
 
       - name: Build AppImage
+        env:
+          ARCH: x86_64
+          APPIMAGETOOL_VERSION: "1.9.1"
+          APPIMAGETOOL_SHA256: ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0
         run: |
-          curl -fsSL -o appimagetool https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
+          curl -fsSL -o appimagetool https://github.com/AppImage/appimagetool/releases/download/${APPIMAGETOOL_VERSION}/appimagetool-x86_64.AppImage
+          echo "${APPIMAGETOOL_SHA256}  appimagetool" | sha256sum -c -
           chmod +x appimagetool
           ./appimagetool --appimage-extract >/dev/null
           APPIMAGETOOL="$PWD/squashfs-root/AppRun" bash packaging/build-appimage.sh .
-        env:
-          ARCH: x86_64
 
       - uses: actions/upload-artifact@v4
         with:
@@ -86,15 +89,20 @@ jobs:
 
       - name: Build .deb / .rpm (nFPM)
         run: |
-          go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
+          go install github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.48.0
           chmod +x packaging/scripts/*.sh
           VERSION="${GITHUB_REF_NAME#v}" ARCH=arm64 $(go env GOPATH)/bin/nfpm package --packager deb --config packaging/nfpm.yaml --target .
           VERSION="${GITHUB_REF_NAME#v}" ARCH=arm64 $(go env GOPATH)/bin/nfpm package --packager rpm --config packaging/nfpm.yaml --target .
           ls -l refconnect*.deb refconnect*.rpm
 
       - name: Build AppImage
+        env:
+          ARCH: aarch64
+          APPIMAGETOOL_VERSION: "1.9.1"
+          APPIMAGETOOL_SHA256: f0837e7448a0c1e4e650a93bb3e85802546e60654ef287576f46c71c126a9158
         run: |
-          curl -fsSL -o appimagetool https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-aarch64.AppImage
+          curl -fsSL -o appimagetool https://github.com/AppImage/appimagetool/releases/download/${APPIMAGETOOL_VERSION}/appimagetool-aarch64.AppImage
+          echo "${APPIMAGETOOL_SHA256}  appimagetool" | sha256sum -c -
           chmod +x appimagetool
           ./appimagetool --appimage-extract >/dev/null
           APPIMAGETOOL="$PWD/squashfs-root/AppRun" bash packaging/build-appimage.sh .

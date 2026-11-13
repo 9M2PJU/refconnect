@@ -29,14 +29,14 @@ func (a *App) checkForUpdate() {
 	a.appendLog(fmt.Sprintf("Update available: %s (running %s)", latest, a.version))
 
 	if update.ManagedInstall() {
-		a.appendLog("Managed install detected — update via your package manager.")
+		a.appendLog("Managed install detected — update via fresh download.")
 		msg := fmt.Sprintf("RefConnect %s is available (you have %s).\n\n"+
-			"You installed via a system package (.deb/.rpm/AUR/AppImage), so update with "+
-			"your package manager instead:\n"+
-			"  Debian/Ubuntu: sudo apt update && sudo apt upgrade refconnect\n"+
-			"  Fedora/RHEL: sudo dnf upgrade refconnect\n"+
-			"  Arch (AUR): yay -Syu refconnect-git (or -bin)\n"+
-			"  AppImage: download the new file from GitHub Releases.",
+			"You installed via a system package (.deb/.rpm/AUR) or AppImage, so the in-app updater is disabled.\n"+
+			"Download the new release from GitHub and install it:\n"+
+			"  Debian/Ubuntu: download refconnect*.deb, then sudo apt install ./refconnect*.deb\n"+
+			"  Fedora/RHEL: download refconnect*.rpm, then sudo dnf install ./refconnect*.rpm\n"+
+			"  Arch (AUR, once published): yay -Syu refconnect-bin (or -git)\n"+
+			"  AppImage: download the new file from GitHub Releases and make it executable.",
 			latest, a.version)
 		fyne.Do(func() {
 			dialog.ShowInformation("Update Available", msg, a.win)
